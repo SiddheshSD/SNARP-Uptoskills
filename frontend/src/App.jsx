@@ -10,6 +10,8 @@ import { api, getToken, saveToken, clearToken } from './api'
 import Auth from './Auth'
 import Layout from './Layout'
 import Feed from './Feed'
+import { ChatProvider } from './ChatContext.jsx'
+import ChatPage from './pages/ChatPage'
 
 import {
   Communities,
@@ -24,6 +26,7 @@ import {
   Settings,
   Help,
   Search,
+  ChatPanel,
 } from './pages'
 
 // Load the landing page only when required
@@ -75,8 +78,9 @@ export default function App() {
     )
 
   return (
-    <BrowserRouter>
-      <Routes>
+    <ChatProvider user={user}>
+      <BrowserRouter>
+        <Routes>
         {/* Authentication routes */}
         <Route path="/login" element={guest('login')} />
         <Route path="/signup" element={guest('signup')} />
@@ -93,6 +97,7 @@ export default function App() {
             <Route path="/articles" element={<Articles />} />
             <Route path="/events" element={<Events />} />
             <Route path="/messages" element={<Messages />} />
+            <Route path="/chat" element={<ChatPage />} key={user?.id} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/tools" element={<Tools />} />
             <Route path="/submit" element={<Submit user={user} />} />
@@ -109,14 +114,17 @@ export default function App() {
           </Route>
         ) : (
           // Landing page for logged-out visitors
-          <Route
-            path="/"
-            element={
-              <Suspense fallback={null}>
-                <Landing />
-              </Suspense>
-            }
-          />
+          <>
+            <Route
+              path="/"
+              element={
+                <Suspense fallback={null}>
+                  <Landing />
+                </Suspense>
+              }
+            />
+            <Route path="/chat" element={<ChatPanel preview />} />
+          </>
         )}
 
         {/* Handle unknown routes */}
@@ -129,7 +137,8 @@ export default function App() {
             />
           }
         />
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </ChatProvider>
   )
 }
